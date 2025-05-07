@@ -1,3 +1,6 @@
-[submodule "third_party/lapack"]
-	path = third_party/lapack
-	url = https://github.com/Reference-LAPACK/lapack.git
+[submodule "third_party/lapackcpp"]
+	path = third_party/lapackcpp
+	url = git@github.com:icl-utk-edu/lapackpp.git
+[submodule "third_party/blaspp"]
+	path = third_party/blaspp
+	url = git@github.com:icl-utk-edu/blaspp.git
