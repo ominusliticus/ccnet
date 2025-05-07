@@ -1,0 +1,15 @@
+#pragma once
+
+// Library version number and path information
+#cmakedefine CCNet_VERSION_MAJOR "@CCNet_VERSION_MAJOR@"
+#cmakedefine CCNet_VERSION_MINOR "@CCNet_VERSION_MINOR@"
+
+#ifndef CCNet_VERSION_MAJOR
+#define CCNet_VERSION_MAJOR "0"
+#endif
+#ifndef CCNet_VERSION_MINOR 
+#define CCNet_VERSION_MINOR "0"
+#endif
+
+#cmakedefine CCNet_SRC_DIR "@CCNet_SRC_DIR@"
+// #define CCNet_PYTHON_DIR $CCNet_PYTHON_DIR@
