@@ -40,3 +40,6 @@ target_sources(
     PRIVATE
     ${CCNet_SOURCE_FILES}
 )
+
+# Testing 
+add_subdirectory(tests)

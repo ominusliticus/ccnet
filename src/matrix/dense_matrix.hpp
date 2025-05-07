@@ -12,9 +12,17 @@ public:
     using Entries = std::vector<Field>;
 
 
+    // Constructors
     Matrix() = default;
     Matrix(Index rows, Index cols);
-    Matrix(std::vector<Value> entris);
+    Matrix(std::vector<Value>&& entries);
+
+    // Copy and move operations
+    Matrix(Matrix const& other);
+    Matrix(Matrix&& other) noexcept;
+    
+    Matrix& operator=(Matrix const& other);
+    Matrix& operator=(Matrix&& other);
 
     Value&       operator()(Index i, Index j);
     Value const& operator()(Index i, Index j) const;

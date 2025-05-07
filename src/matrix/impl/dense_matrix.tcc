@@ -5,7 +5,7 @@ template<typename Field>
 Matrix<Field>::Matrix(
     Index rows,
     Index cols
-) : m_entries{ rows * cols }
+) : m_entries{ std::move(std::vector<Field>(rows * cols)) }
   , m_rows{ rows }
   , m_cols{ cols }
 {
@@ -16,14 +16,14 @@ Matrix<Field>::Matrix(
     std::vector<Value>&& entries
 ) : m_entries{ std::move(entries) }
 {
-    Index n{ std::sqrt(entries.size()) };
+    Index n{ static_cast<Index>(std::sqrt(entries.size())) };
     m_rows = n;
     m_cols = n;
 }
 
 template<typename Field>
 Matrix<Field>::Matrix(
-    Matrix const& other
+    Matrix<Field> const& other
 ) : m_entries{ other.m_entries }
   , m_rows{ other.m_rows }
   , m_cols{ other.m_cols }
@@ -33,8 +33,9 @@ Matrix<Field>::Matrix(
 
 template<typename Field>
 Matrix<Field>::Matrix(
-    Matrix const& other
-) : m_entries{ std::move(other.m_entries) }
+    Matrix<Field>&& other
+) noexcept
+  : m_entries{ std::move(other.m_entries) }
   , m_rows{ std::move(other.m_rows) }
   , m_cols{ std::move(other.m_cols) }
 {
