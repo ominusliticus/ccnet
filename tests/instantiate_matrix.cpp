@@ -1,6 +1,7 @@
 // STL
-#include <vector>
+#include <cassert>
 #include <complex>
+#include <vector>
 // CCNet
 #include "matrix/dense_matrix.hpp"
 
@@ -13,9 +14,14 @@ instantiate_matrix(
 ) -> void
 {
     Matrix<Field> m(10, 10);
+    assert(m(3, 3) == static_cast<Field>(0.0));
+
     Matrix<Field> m2(std::move(m));
+    assert(m2(4, 4) == static_cast<Field>(0.0));
+
     Matrix<Field> m3 = std::move(m2);
-    (void)m3;
+    using Index = typename Matrix<Field>::Index;
+    assert((m3.get_dims() == std::make_pair<Index, Index>(10, 10)));
 }
 
 template<typename Field>
@@ -25,9 +31,14 @@ instantiate_matrix(
 ) -> void
 {
     Matrix<Field> m(std::move(v));
+    assert(m(0, 0) == static_cast<Field>(1.0));
+
     Matrix<Field> m2(std::move(m));
+    assert(m2(1, 1) == static_cast<Field>(4.0));
+
     Matrix<Field> m3 = std::move(m2);
-    (void)m3;
+    using Index = typename Matrix<Field>::Index;
+    assert((m3.get_dims() == std::make_pair<Index, Index>(2, 2)));
 }
 
 auto
@@ -43,9 +54,10 @@ main(
     instantiate_matrix<double>(std::vector<double>{1.0, 2.0, 3.0, 4.0});
 
     // complex test
-    using complex = std::complex<double>;
-    instantiate_matrix<complex>();
-    instantiate_matrix<complex>(std::vector<complex>{
-        {1.0, 1.0}, {2.0, 2.0}, {3.0, 3.0}, {4.0, 4.0}
+    using Field = std::complex<double>;
+    instantiate_matrix<Field>();
+    instantiate_matrix<Field>(std::vector<Field>{
+        {1.0, 0.0}, {2.0, 0.0}, {3.0, 0.0}, {4.0, 0.0}
     });
+    return 0;
 }
