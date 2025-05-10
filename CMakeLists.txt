@@ -21,23 +21,24 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 add_compile_options(
     -Wall -Wpedantic -Wextra
     -std=c++20
-)
-add_executable(
-    ccnet 
-    "${CCNet_SRC_DIR}/main.cpp"
+    -fconcepts-diagnostics-depth=3
 )
 
 add_subdirectory(src)
 # include(python)
 
+add_executable(
+    ccnet 
+    "${CCNet_SRC_DIR}/main.cpp"
+)
 target_include_directories(
     ccnet
     PUBLIC
-    "${CCNET_SRC_DIR}"
+    ${CCNet_SRC_DIR}
 )
 target_sources(
     ccnet
-    PRIVATE
+    PUBLIC
     ${CCNet_SOURCE_FILES}
 )
 

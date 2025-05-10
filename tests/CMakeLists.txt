@@ -8,7 +8,7 @@ add_executable(
 )
 target_include_directories(
     instantiate_matrix
-    PRIVATE
+    PUBLIC
     ${CCNet_SRC_DIR}
 )
 add_test(
