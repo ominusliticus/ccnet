@@ -14,19 +14,18 @@
 template<MatrixConcept Block>
 class BlockDiagonalMatrix {
 public:
-    using Value     = typename Block::Value;
-    using Index     = std::size_t;
-    using Entries   = std::vector<Block>;
-    using IndexList = std::vector<std::pair<Index, Index>>;
+    using Value    = typename Block::Value;
+    using Index    = std::size_t;
+    using Entries  = std::vector<Block>;
+    using DimsList = std::vector<std::pair<Index, Index>>;
 
     // Constructors
     BlockDiagonalMatrix() = default;
-    BlockDiagonalMatrix(Index n_entries);
     BlockDiagonalMatrix(Entries&& entries);
 
     // Copy and move operations
     BlockDiagonalMatrix(BlockDiagonalMatrix const& other);
-    BlockDiagonalMatrix(BlockDiagonalMatrix&& other);
+    BlockDiagonalMatrix(BlockDiagonalMatrix&& other) noexcept;
 
     BlockDiagonalMatrix& operator=(BlockDiagonalMatrix const& other);
     BlockDiagonalMatrix& operator=(BlockDiagonalMatrix&& other);
@@ -35,14 +34,15 @@ public:
     Value&       operator()(Index i, Index j);
     Value const& operator()(Index i, Index j) const;
 
-    // Conversion to dense and sparse matrices
+    // Conversion to dense matrices
     Matrix<Value> to_dense();
-    Matrix<Value> to_sparse();
 
     // Return matrix dimensions
     std::pair<Index, Index> get_dims();
+    std::pair<Index, Index> get_dims() const;
 private:
-    Entries   m_entries;
+    Entries  m_entries;
+    DimsList m_dims_list;
 };
 
 #include "impl/block_matrix.tcc"

@@ -1,6 +1,8 @@
 #include <utility>
 #include <cmath>
 
+#include <print.hpp>
+
 template<typename Field>
 Matrix<Field>::Matrix(
     Index rows,
@@ -18,7 +20,9 @@ Matrix<Field>::Matrix(
     Entries&& entries
 ) : m_entries{ std::move(entries) }
 {
-    Index n{ static_cast<Index>(std::sqrt(entries.size())) };
+    Index n{ static_cast<Index>(std::sqrt(m_entries.size())) };
+    println("Vector length", m_entries.size());
+    println("Square matrix dim", n);
     m_rows = n;
     m_cols = n;
 }
@@ -103,8 +107,18 @@ Matrix<Field>::operator()(
 
 template<typename Field>
 auto
-get_dims(
+Matrix<Field>::get_dims(
 ) -> std::pair<Index, Index>
+{
+    return std::make_pair(m_rows, m_cols);
+}
+
+// .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
+
+template<typename Field>
+auto
+Matrix<Field>::get_dims(
+) const -> std::pair<Index, Index> 
 {
     return std::make_pair(m_rows, m_cols);
 }

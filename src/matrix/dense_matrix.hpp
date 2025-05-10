@@ -1,10 +1,5 @@
 #pragma once
 
-<<<<<<< HEAD
-#include <utility>
-#include <vector>
-=======
->>>>>>> 586382d (Adding more matrix capabilities and some testing capabilities)
 #include <cstdint>
 #include <vector>
 #include <utility>
@@ -32,8 +27,13 @@ public:
     // Access operations
     Value&       operator()(Index i, Index j);
     Value const& operator()(Index i, Index j) const;
+    
     // Return matrix dims
     std::pair<Index, Index> get_dims();
+    std::pair<Index, Index> get_dims() const;
+
+    // Is matrix dense?
+    static bool is_dense() { return true; }
 private:
     std::vector<Field> m_entries;
     Index      m_rows;

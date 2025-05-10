@@ -9,5 +9,14 @@ print(
 ) -> void
 {
     ((std::cout << std::forward<Args>(args) << " "), ...);
-    std::cout << std::endl;
+}
+
+template<typename...Args>
+auto
+println(
+    Args&&... args
+) -> void
+{
+    ((std::cout << std::forward<Args>(args) << " "), ...);
+    std::cout << '\n';
 }

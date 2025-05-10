@@ -7,7 +7,7 @@
 template<typename Field>
 SparseMatrix<Field>::SparseMatrix(
     Index n_entries
-) : m_index_List{ std::move(IndexList(n_entries)) }
+) : m_index_list{ std::move(IndexList(n_entries)) }
   , m_entries{ std::move(Entries(n_entries)) }
 {
 }
@@ -81,7 +81,7 @@ SparseMatrix<Field>::operator()(
 ) -> Value&
 {
     auto index = std::make_pair(i, j);
-    auto it = std::ranges::find(index, m_index_list);
+    auto it = std::ranges::find(m_index_list, index);
     if (it == m_index_list.end())
         return 0;
     
@@ -98,7 +98,7 @@ SparseMatrix<Field>::operator()(
 ) const -> Value const&
 {
     auto index = std::make_pair(i, j);
-    auto it = std::ranges::find(index, m_index_list);
+    auto it = std::ranges::find(m_index_list, index);
     if (it == m_index_list.end())
         return 0;
     
@@ -110,7 +110,7 @@ SparseMatrix<Field>::operator()(
 template<typename Field>
 auto
 SparseMatrix<Field>::to_dense(
-) -> Matrtix<Field>
+) -> Matrix<Field>
 {
     auto& [rows, cols] = get_dims();
     Matrix<Field> mat(rows, cols);
@@ -125,15 +125,32 @@ SparseMatrix<Field>::to_dense(
 
 template<typename Field>
 auto
-get_dims(
+SparseMatrix<Field>::get_dims(
 ) -> std::pair<Index, Index>
 {
     Index rows{ 0 };
     Index cols{ 0 };
     for (auto const& indices : m_index_list)
     {
-        rows = indices.get<0>() ? rows < max_dims.get<0>() : rows;
-        cols = indices.get<0>() ? cols < max_dims.get<0>() : cols;
+        rows = std::get<0>(indices) ? rows < std::get<0>(indices) : rows;
+        cols = std::get<1>(indices) ? cols < std::get<1>(indices) : cols;
+    }
+    return std::make_pair(rows, cols);
+}
+
+// .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
+
+template<typename Field>
+auto
+SparseMatrix<Field>::get_dims(
+) const -> std::pair<Index, Index>
+{
+    Index rows{ 0 };
+    Index cols{ 0 };
+    for (auto const& indices : m_index_list)
+    {
+        rows = std::get<0>(indices) ? rows < std::get<0>(indices) : rows;
+        cols = std::get<1>(indices) ? cols < std::get<1>(indices) : cols;
     }
     return std::make_pair(rows, cols);
 }

@@ -22,7 +22,7 @@ public:
 
     // Copy and move operations
     SparseMatrix(SparseMatrix const& other);
-    SparseMatrix(SparseMatrix&& other);
+    SparseMatrix(SparseMatrix&& other) noexcept;
 
     SparseMatrix& operator=(SparseMatrix const& other);
     SparseMatrix& operator=(SparseMatrix&& other);
@@ -36,6 +36,10 @@ public:
 
     // Return matrix dimension
     std::pair<Index, Index> get_dims();
+    std::pair<Index, Index> get_dims() const;
+
+    // Is matrix dense
+    static bool is_dense() { return false; }
 private:
     IndexList m_index_list;
     Entries   m_entries;
