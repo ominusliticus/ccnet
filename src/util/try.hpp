@@ -6,10 +6,10 @@
       auto&& error_or = result;                                                                   \
       if (error_or.is_error())                                                                    \
       {                                                                                           \
-          printf("Bubbling error from function: %s\n", #result);                                  \
+          print("Bubbling error from function: %s\n", #result);                                   \
           return error_or.error();                                                                \
     }                                                                                             \
-        error_or.release();                                                                       \
+        error_or.value();                                                                         \
   })
 
 // macro called in int main to handle any functions that can return erro
@@ -18,11 +18,11 @@
       auto&& error_or = result;                                                                   \
       if (error_or.is_error())                                                                    \
       {                                                                                           \
-          printf("Exiting with error: %s\n", strerror(error_or.error().value()));                 \
-          printf("Program failed at line %d\n", line);                                            \
+          print("Exiting with error: %s\n", error_to_str(error_or.error()));                      \
+          print("Program failed at line %d\n", line);                                             \
           return 0;                                                                               \
       }                                                                                           \
-      error_or.release();                                                                         \
+      error_or.value();                                                                           \
   })
 
 #define TRY_MAIN(result) TRY_MAIN_(result, __LINE__)

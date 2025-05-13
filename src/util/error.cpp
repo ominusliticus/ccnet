@@ -1,8 +1,24 @@
 #include "error.h"
+#include "util/error.hpp"
 
-template<>
+#include <string>
+
+auto
+error_to_str(
+    ErrorType error
+)-> std::string
+{
+    switch (error) {
+        case ErrorType::NO_ERRORS: return "no errors";
+        case ErrorType::ACCESS_VIOLATION: return "Index out of bounds";
+        case ErrorType::INCOMPATIBLE_DIMENSIONS: return "Matrix dimensions mismatch";
+        default: return "unknown error";
+    }
+}
+
+
 ErrorOr<void>::ErrorOr(
-    void value
+    Empty value
 )
   : m_value{ value }
   , m_error{ ErrorType::NO_ERRORS }
@@ -12,7 +28,6 @@ ErrorOr<void>::ErrorOr(
 
 // .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
 
-template<>
 ErrorOr<void>::ErrorOr(
     ErrorType error
 )
@@ -24,19 +39,17 @@ ErrorOr<void>::ErrorOr(
 
 // .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
 
-template<>
 ErrorOr<void>::ErrorOr(
     ErrorOr<void> const& other
 )
-  : m_value{ other.value }
-  , m_error{ other.error }
+  : m_value{ other.value() }
+  , m_error{ other.error() }
   , m_is_error{ other.m_is_error }
 {
 }
 
 // .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
 
-template<>
 ErrorOr<void>::ErrorOr(
     ErrorOr<void>&& other
 ) noexcept
@@ -48,7 +61,6 @@ ErrorOr<void>::ErrorOr(
 
 // .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
 
-template<>
 auto
 ErrorOr<void>::operator=(
     ErrorOr<void> const& other
@@ -57,11 +69,11 @@ ErrorOr<void>::operator=(
     m_value = other.m_value;
     m_error = other.m_error;
     m_is_error = other.m_is_error;
+    return *this;
 }
 
 // .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
 
-template<>
 auto
 ErrorOr<void>::operator=(
     ErrorOr<void>&& other
@@ -70,11 +82,11 @@ ErrorOr<void>::operator=(
     m_value = std::move(other.m_value);
     m_error = std::move(other.m_error);
     m_is_error = std::move(other.m_is_error);
+    return *this;
 }
 
 // .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
 
-template<>
 auto
 ErrorOr<void>::value(
 ) -> Empty& 
@@ -84,30 +96,27 @@ ErrorOr<void>::value(
 
 // .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
 
-template<>
 auto
 ErrorOr<void>::value(
-) -> Empty const& 
+) const -> Empty const& 
 {
     return m_value;
 }
 
 // .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
 
-template<>
 auto
 ErrorOr<void>::error(
-) -> ErrorType& 
+) -> ErrorType 
 {
     return m_error;
 }
 
 // .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
 
-template<>
 auto
 ErrorOr<void>::error(
-) -> ErrorType const& 
+) const -> ErrorType const& 
 {
     return m_error;
 }

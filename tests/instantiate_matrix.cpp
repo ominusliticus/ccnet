@@ -13,15 +13,28 @@ auto
 instantiate_matrix(
 ) -> void
 {
-    Matrix<Field> m(10, 10);
-    assert(m(3, 3) == static_cast<Field>(0.0));
+    // dense matrices
+    {
+        Matrix<Field> m(10, 10);
+        assert(m(3, 3) == static_cast<Field>(0.0));
 
-    Matrix<Field> m2(std::move(m));
-    assert(m2(4, 4) == static_cast<Field>(0.0));
+        Matrix<Field> m2(std::move(m));
+        assert(m2(4, 4) == static_cast<Field>(0.0));
 
-    Matrix<Field> m3 = std::move(m2);
-    using Index = typename Matrix<Field>::Index;
-    assert((m3.get_dims() == std::make_pair<Index, Index>(10, 10)));
+        Matrix<Field> m3 = std::move(m2);
+        using Index = typename Matrix<Field>::Index;
+        assert((m3.get_dims() == std::make_pair<Index, Index>(10, 10)));
+    }
+
+    // sparse matrices
+    {
+
+    }
+
+    // block matrices
+    {
+
+    }
 }
 
 template<typename Field>
@@ -30,15 +43,28 @@ instantiate_matrix(
     std::vector<Field>&& v
 ) -> void
 {
-    Matrix<Field> m(std::move(v));
-    assert(m(0, 0) == static_cast<Field>(1.0));
+    // dense matrices
+    {
+        Matrix<Field> m(std::move(v));
+        assert(m(0, 0) == static_cast<Field>(1.0));
 
-    Matrix<Field> m2(std::move(m));
-    assert(m2(1, 1) == static_cast<Field>(4.0));
+        Matrix<Field> m2(std::move(m));
+        assert(m2(1, 1) == static_cast<Field>(4.0));
 
-    Matrix<Field> m3 = std::move(m2);
-    using Index = typename Matrix<Field>::Index;
-    assert((m3.get_dims() == std::make_pair<Index, Index>(2, 2)));
+        Matrix<Field> m3 = std::move(m2);
+        using Index = typename Matrix<Field>::Index;
+        assert((m3.get_dims() == std::make_pair<Index, Index>(2, 2)));
+    }
+
+    // sparse matrices
+    {
+
+    }
+
+    // block matrices
+    {
+
+    }
 }
 
 auto

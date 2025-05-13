@@ -2,6 +2,7 @@
 
 #include <type_traits>
 #include <cstdint>
+#include <string>
 
 enum class ErrorType : std::size_t {
     // Matrix Operations
@@ -9,6 +10,8 @@ enum class ErrorType : std::size_t {
     ACCESS_VIOLATION,
     INCOMPATIBLE_DIMENSIONS
 };
+
+std::string error_to_str(ErrorType error);
 
 struct Empty {};
 
@@ -59,7 +62,7 @@ public:
 
     // Copy and move operations
     ErrorOr(ErrorOr const& other);
-    ErrorOr(ErrorOr&& other);
+    ErrorOr(ErrorOr&& other) noexcept;
 
     ErrorOr& operator=(ErrorOr const& other);
     ErrorOr& operator=(ErrorOr&& other);

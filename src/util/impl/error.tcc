@@ -16,7 +16,7 @@ template<typename T>
 ErrorOr<T>::ErrorOr(
     ErrorType error
 )
-  : m_value{ Empty{} }
+  : m_value{ T{} }
   , m_error{ error }
   , m_is_error{ true }
 {
@@ -28,8 +28,8 @@ template<typename T>
 ErrorOr<T>::ErrorOr(
     ErrorOr<T> const& other
 )
-  : m_value{ other.value }
-  , m_error{ other.error }
+  : m_value{ other.m_value }
+  , m_error{ other.m_error }
   , m_is_error{ other.m_is_error }
 {
 }
