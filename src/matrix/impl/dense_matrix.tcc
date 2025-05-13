@@ -59,7 +59,7 @@ Matrix<Field>::operator=(
 
 ) -> Matrix<Field>&
 {
-    m_entries = other.entries;
+    m_entries = other.m_entries;
     m_rows    = other.m_rows;
     m_cols    = other.m_cols;
     return *this;
@@ -73,7 +73,7 @@ Matrix<Field>::operator=(
     Matrix<Field>&& other
 ) -> Matrix<Field>&
 {
-    m_entries = std::move(other.entries);
+    m_entries = std::move(other.m_entries);
     m_rows    = std::move(other.m_rows);
     m_cols    = std::move(other.m_cols);
     return *this;

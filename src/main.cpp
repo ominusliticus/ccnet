@@ -3,13 +3,62 @@
 #include <string>
 #include <vector>
 
+// Util
+#include "util/error.hpp"
+#include "util/try.hpp"
+
 // CCNet
 #include "print.hpp"
 #include "version.hpp"
 
 // matrix
+#include "matrix/arithmetic.hpp"
 #include "matrix/dense_matrix.hpp"
 #include "matrix/block_matrix.hpp"
+
+// Function prototypes
+std::string version_string();
+void        banner();
+
+ErrorOr<void> trivial() { return {}; }
+
+auto
+main(
+    [[maybe_unused]] int    argc,
+    [[maybe_unused]] char** argv
+) -> int
+{
+    banner();
+    println("Hello World!");
+
+    using Field = std::complex<double>;
+    std::vector<Field> v{{1.0, 0.0}, {2.0, 0.0}, {3.0, 0.0}, {4.0, 0.0}};
+    Matrix<Field>      mat(std::move(v));
+    println(std::get<0>(mat.get_dims()), std::get<1>(mat.get_dims()));
+    for (Matrix<Field>::Index i{ 0 }; i < std::get<0>(mat.get_dims()); ++i)
+    {
+        print("[ ");
+        for (Matrix<Field>::Index j{ 0 }; j < std::get<1>(mat.get_dims()); ++j)
+            print(mat(i, j), ",");
+        println("]");
+    }
+    BlockDiagonalMatrix<Matrix<Field>> block_mat({mat});
+    [[maybe_unused]] auto triv = TRY_MAIN(trivial());
+
+    auto mat_prod = (mat * mat).value();
+    for (Matrix<Field>::Index i{ 0 }; i < std::get<0>(mat.get_dims()); ++i)
+    {
+        print("[ ");
+        for (Matrix<Field>::Index j{ 0 }; j < std::get<1>(mat.get_dims()); ++j)
+            print(mat_prod(i, j), ",");
+        println("]");
+    }
+    return 0;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/// Prototyped function implementations
+///
 
 auto 
 version_string(
@@ -28,27 +77,3 @@ banner(
     println("Version:", version_string());
 }
 
-
-auto
-main(
-    [[maybe_unused]] int    argc,
-    [[maybe_unused]] char** argv
-) -> int
-{
-    banner();
-    println("Hello World!");
-
-    using Field = std::complex<double>;
-    std::vector<Field> v{{1.0, 1.0}, {2.0, 2.0}, {3.0, 3.0}, {4.0, 4.0}};
-    Matrix<Field>      mat(std::move(v));
-    println(std::get<0>(mat.get_dims()), std::get<1>(mat.get_dims()));
-    for (Matrix<Field>::Index i{ 0 }; i < std::get<0>(mat.get_dims()); ++i)
-    {
-        print("[ ");
-        for (Matrix<Field>::Index j{ 0 }; j < std::get<1>(mat.get_dims()); ++j)
-            print(mat(i, j), ",");
-        println("]");
-    }
-    BlockDiagonalMatrix<Matrix<Field>> block_mat({mat});
-    return 0;
-}

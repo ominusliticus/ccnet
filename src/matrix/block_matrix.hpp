@@ -40,6 +40,9 @@ public:
     // Return matrix dimensions
     std::pair<Index, Index> get_dims();
     std::pair<Index, Index> get_dims() const;
+
+    // Is matrix dense
+    static bool is_dense() { return false; }
 private:
     Entries  m_entries;
     DimsList m_dims_list;

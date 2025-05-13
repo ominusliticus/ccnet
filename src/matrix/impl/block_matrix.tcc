@@ -46,7 +46,7 @@ BlockDiagonalMatrix<Block>::operator=(
 
 ) -> BlockDiagonalMatrix<Block>&
 {
-    m_entries   = other.entries;
+    m_entries   = other.m_entries;
     m_dims_list = other.m_dims_list;
     return *this;
 }
@@ -59,7 +59,7 @@ BlockDiagonalMatrix<Block>::operator=(
     BlockDiagonalMatrix<Block>&& other
 ) -> BlockDiagonalMatrix<Block>&
 {
-    m_entries   = std::move(other.entries);
+    m_entries   = std::move(other.m_entries);
     m_dims_list = std::move(other.m_dims_list);
     return *this;
 }

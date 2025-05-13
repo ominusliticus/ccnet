@@ -27,6 +27,10 @@ public:
     // Access operations
     Value&       operator()(Index i, Index j);
     Value const& operator()(Index i, Index j) const;
+
+    // Conversion to dense: for compatibility
+    Matrix<Value>&       to_dense() { return *this; }
+    Matrix<Value> const& to_dense() const {return *this; }
     
     // Return matrix dims
     std::pair<Index, Index> get_dims();
@@ -34,6 +38,10 @@ public:
 
     // Is matrix dense?
     static bool is_dense() { return true; }
+
+    // Get access to underlying data
+    Value*       data()       { return m_entries.data(); };
+    Value const* data() const { return m_entries.data(); };
 private:
     std::vector<Field> m_entries;
     Index      m_rows;

@@ -28,7 +28,7 @@ SparseMatrix<Field>::SparseMatrix(
 template<typename Field>
 SparseMatrix<Field>::SparseMatrix(
     SparseMatrix<Field> const& other
-) : m_index_list{ other.m_index_llist }
+) : m_index_list{ other.m_index_list }
   , m_entries{ other.m_entries }
 {
 }
@@ -54,7 +54,7 @@ SparseMatrix<Field>::operator=(
 ) -> SparseMatrix<Field>&
 {
     m_index_list = other.m_index_list;
-    m_entries = other.entries;
+    m_entries    = other.m_entries;
     return *this;
 }
 
@@ -67,7 +67,7 @@ SparseMatrix<Field>::operator=(
 ) -> SparseMatrix<Field>&
 {
     m_index_list = std::move(other.m_index_list);
-    m_entries = std::move(other.entries);
+    m_entries    = std::move(other.m_entries);
     return *this;
 }
 
@@ -81,7 +81,7 @@ SparseMatrix<Field>::operator()(
 ) -> Value&
 {
     auto index = std::make_pair(i, j);
-    auto it = std::ranges::find(m_index_list, index);
+    auto it    = std::ranges::find(m_index_list, index);
     if (it == m_index_list.end())
         return 0;
     
@@ -98,7 +98,7 @@ SparseMatrix<Field>::operator()(
 ) const -> Value const&
 {
     auto index = std::make_pair(i, j);
-    auto it = std::ranges::find(m_index_list, index);
+    auto it    = std::ranges::find(m_index_list, index);
     if (it == m_index_list.end())
         return 0;
     
