@@ -1,4 +1,3 @@
-#include "blas/gemm.hh"
 #include <blas.hh>
 
 template<MatrixConcept MatrixType>

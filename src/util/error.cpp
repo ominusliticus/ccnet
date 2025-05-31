@@ -10,8 +10,10 @@ error_to_str(
 {
     switch (error) {
         case ErrorType::NO_ERRORS: return "no errors";
-        case ErrorType::ACCESS_VIOLATION: return "Index out of bounds";
+        case ErrorType::OUT_OF_BOUNDS: return "Index out of bounds";
+        case ErrorType::INDEX_NOT_IN_LIST: return "Indices not found in index list";
         case ErrorType::INCOMPATIBLE_DIMENSIONS: return "Matrix dimensions mismatch";
+        case ErrorType::SINGULAR_MATRIX: return "Matrix is singular";
         default: return "unknown error";
     }
 }

@@ -39,7 +39,10 @@ main(
     {
         print("[ ");
         for (Matrix<Field>::Index j{ 0 }; j < std::get<1>(mat.get_dims()); ++j)
-            print(mat(i, j), ",");
+        {
+            auto value = TRY_MAIN(mat(i, j));
+            print(value, ",");
+        }
         println("]");
     }
     BlockDiagonalMatrix<Matrix<Field>> block_mat({mat});
@@ -50,7 +53,10 @@ main(
     {
         print("[ ");
         for (Matrix<Field>::Index j{ 0 }; j < std::get<1>(mat.get_dims()); ++j)
-            print(mat_prod(i, j), ",");
+        {
+            auto value = TRY_MAIN(mat_prod(i, j));
+            print(value, ",");
+        }
         println("]");
     }
     return 0;

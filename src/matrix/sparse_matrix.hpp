@@ -28,8 +28,8 @@ public:
     SparseMatrix& operator=(SparseMatrix&& other);
 
     // Access operations
-    Value&       operator()(Index i, Index j);
-    Value const& operator()(Index i, Index j) const;
+    ErrorOr<Value&>       operator()(Index i, Index j);
+    ErrorOr<Value const&> operator()(Index i, Index j) const;
 
     // Conversion to dense matrices
     Matrix<Value> to_dense();
@@ -38,8 +38,41 @@ public:
     std::pair<Index, Index> get_dims();
     std::pair<Index, Index> get_dims() const;
 
-    // Is matrix dense
-    static bool is_dense() { return false; }
+    // Iterators for easy matrix traversal
+    struct Iterator {
+        Iterator() noexcept = default;
+        Iterator(
+            std::pair<Index, Index>& indices_,
+            Value* value_, 
+            SparseMatrix<Field>* underlying_mat
+        );
+
+        // Iterator incrementor
+        Iterator& operator++();
+        Iterator& operator--();
+        Iterator  operator++(int);
+        Iterator  operator--(int);
+
+        // For bounds checking
+        bool operator==(Iterator const& itr);
+        bool operator!=(Iterator const& itr);
+
+        // Value accessing
+        Iterator&       operator*() { return *this; }
+        Iterator const& operator*() const { return *this; }
+
+        std::pair<Index, Index>& indices;
+        Value*                   value;
+
+    private:
+        SparseMatrix<Field>* underlying_matrix;
+    };
+
+    // Iterators to abstract data traversal
+    Iterator        begin();
+    Iterator const& cbegin();
+    Iterator        end();
+    Iterator const& cend();
 private:
     IndexList m_index_list;
     Entries   m_entries;

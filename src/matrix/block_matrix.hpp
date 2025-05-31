@@ -31,8 +31,8 @@ public:
     BlockDiagonalMatrix& operator=(BlockDiagonalMatrix&& other);
 
     // Access operations
-    Value&       operator()(Index i, Index j);
-    Value const& operator()(Index i, Index j) const;
+    ErrorOr<Value&>       operator()(Index i, Index j);
+    ErrorOr<Value const&> operator()(Index i, Index j) const;
 
     // Conversion to dense matrices
     Matrix<Value> to_dense();
@@ -41,11 +41,45 @@ public:
     std::pair<Index, Index> get_dims();
     std::pair<Index, Index> get_dims() const;
 
-    // Is matrix dense
-    static bool is_dense() { return false; }
+    // Iterators for easy matrix traversal
+    struct Iterator {
+        Iterator() noexcept = default;
+        Iterator(
+            typename Block::Iterator const&   current_block_itr_,
+            Index                       current_block_index_,
+            BlockDiagonalMatrix<Block>* underlying_mat
+        );
+
+        // Iterator incrementor
+        Iterator& operator++();
+        Iterator& operator--();
+        Iterator  operator++(int);
+        Iterator  operator--(int);
+
+        // For bounds checking
+        bool operator==(Iterator const& itr);
+        bool operator!=(Iterator const& itr);
+
+        // Value accessing
+        Iterator&       operator*() { return *this; }
+        Iterator const& operator*() const { return *this; }
+
+        typename Block::Iterator& current_block_itr;
+        Index                     current_block_index;
+
+    private:
+        BlockDiagonalMatrix<Block>* underlying_matrix; 
+    };
+
+    // Iterators to abstract data traversal
+    Iterator        begin();
+    Iterator const& cbegin();
+    Iterator        end();
+    Iterator const& cend();
 private:
-    Entries  m_entries;
     DimsList m_dims_list;
+    Entries  m_entries;
 };
 
 #include "impl/block_matrix.tcc"
+#include "impl/block_matrix_iterator.tcc"

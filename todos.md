@@ -8,6 +8,10 @@ Keeping track of my thoughts here, to avoid premature optimizations.
 - Should matrix operations be optional in general, since incorrect dimensions are possible?
   - For now, I am implementing the simplest error class I can image.
   - I am considering adding `error_or` and `value_or` methods as well.
+- Need a specialized test the make sure the logic of block diagonal matrix indexing is sound
+- Create general block diagonal matrix
+- Create heirarchical matrix
+- Should I make the matrix interator generic for the matrix implemented?
 
 
 # Reach goals that arise as I program

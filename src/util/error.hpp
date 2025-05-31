@@ -7,8 +7,10 @@
 enum class ErrorType : std::size_t {
     // Matrix Operations
     NO_ERRORS = 0,
-    ACCESS_VIOLATION,
-    INCOMPATIBLE_DIMENSIONS
+    OUT_OF_BOUNDS,
+    INDEX_NOT_IN_LIST,
+    INCOMPATIBLE_DIMENSIONS,
+    SINGULAR_MATRIX
 };
 
 std::string error_to_str(ErrorType error);
@@ -18,6 +20,8 @@ struct Empty {};
 template<typename T>
 class [[nodiscard]] ErrorOr {
 public:
+    using ValueType = std::remove_reference_t<T>;
+
     // Value constructors
     ErrorOr() = default;
     ErrorOr(T value);
@@ -38,8 +42,8 @@ public:
     static ErrorOr<U> from_error(ErrorType error) requires std::is_same_v<T, U>;
 
     // Accessors
-    T&               value();
-    T const&         value() const;
+    ValueType&       value();
+    ValueType const& value() const;
     ErrorType&       error();
     ErrorType const& error() const;
 
@@ -47,7 +51,7 @@ public:
     explicit operator bool() const { return !m_is_error; }
     bool              is_error() const { return m_is_error; }
 private:
-    T         m_value;
+    ValueType m_value;
     ErrorType m_error;
     bool      m_is_error;
 };

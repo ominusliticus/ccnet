@@ -6,7 +6,8 @@
 template<MatrixConcept Block>
 BlockDiagonalMatrix<Block>::BlockDiagonalMatrix(
     Entries&& entries
-) : m_entries{ std::move(entries) }
+) : m_dims_list{}
+  , m_entries{ std::move(entries) }
 {
     m_dims_list = [](Entries const& entries) -> DimsList {
         DimsList dims_list(entries.size());
@@ -71,7 +72,7 @@ auto
 BlockDiagonalMatrix<Block>::operator()(
     Index i,
     Index j
-) -> Value&
+) -> ErrorOr<Value&>
 {
     Index block_index;
     Index rows{ 0 };
@@ -84,6 +85,11 @@ BlockDiagonalMatrix<Block>::operator()(
             return m_entries[block_index](i - rows + subrows, j - cols + subcols);
         ++block_index;
     }
+    auto [rows_, cols_] = get_dims();
+    if ((i >= rows_) && (j >= cols_)) 
+        return ErrorType::OUT_OF_BOUNDS;
+    else
+        return ErrorType::INDEX_NOT_IN_LIST;
 }
 
 // .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
@@ -93,7 +99,7 @@ auto
 BlockDiagonalMatrix<Block>::operator()(
     Index i,
     Index j
-) const -> Value const&
+) const -> ErrorOr<Value const&>
 {
     Index block_index;
     Index rows{ 0 };
@@ -106,6 +112,11 @@ BlockDiagonalMatrix<Block>::operator()(
             return m_entries[block_index](i - rows + subrows, j - cols + subcols);
         ++block_index;
     }
+    auto [rows_, cols_] = get_dims();
+    if ((i >= rows_) && (j >= cols_)) 
+        return ErrorType::OUT_OF_BOUNDS;
+    else
+        return ErrorType::INDEX_NOT_IN_LIST;
 }
 
 // .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
@@ -122,10 +133,19 @@ BlockDiagonalMatrix<Block>::to_dense(
         rows += subrows;
         cols += subcols;
     }
-    Matrix<Block> mat(rows, cols);
-    for (Index i{ 0 }; i < rows; ++i)
-        for (Index j{ 0 }; j < cols; ++j)
-            mat(i, j) = *this(i, j);
+    Matrix<Value> mat(rows, cols);
+    rows = cols = 0;
+    for (auto& block : m_entries)
+    {
+        auto const& [subrows, subcols] = block.get_dims();
+        for (auto const& itr : block)
+        {
+            auto const& [i, j] = itr.indices;
+            mat(rows + i, cols + j) = *itr.value;
+        }
+        rows += subrows;
+        cols += subcols;
+    }
 
     return mat;
 }
@@ -144,7 +164,7 @@ BlockDiagonalMatrix<Block>::get_dims(
     };
     auto dim = std::make_pair<Index, Index>(0, 0);
     for (auto const& mat : m_entries)
-        dim = add_pair(dim, mat.get_dims());
+        dim = add_pairs(dim, mat.get_dims());
     return dim;
 }
 
@@ -162,6 +182,54 @@ BlockDiagonalMatrix<Block>::get_dims(
     };
     auto dim = std::make_pair<Index, Index>(0, 0);
     for (auto const& mat : m_entries)
-        dim = add_pair(dim, mat.get_dims());
+        dim = add_pairs(dim, mat.get_dims());
     return dim;
+}
+
+// .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
+
+template<MatrixConcept Block>
+auto
+BlockDiagonalMatrix<Block>::begin(
+) -> BlockDiagonalMatrix<Block>::Iterator 
+{
+    auto   indices = std::make_pair<Index, Index>(0, 0);
+    Value* value   = &m_entries[0](0, 0);
+    return { indices, value, 0, this};
+}
+
+// .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
+
+template<MatrixConcept Block>
+auto
+BlockDiagonalMatrix<Block>::cbegin(
+) -> BlockDiagonalMatrix<Block>::Iterator const&
+{
+    auto   indices = std::make_pair<Index, Index>(0, 0);
+    Value* value   = &m_entries[0](0, 0);
+    return { indices, value, 0, this };
+}
+
+// .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
+
+template<MatrixConcept Block>
+auto
+BlockDiagonalMatrix<Block>::end(
+) -> BlockDiagonalMatrix<Block>::Iterator 
+{
+    auto   indices = get_dims();
+    Value* value   = (*m_entries.end()).end().value;
+    return { indices, value, m_entries.size(), this };
+}
+
+// .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
+
+template<MatrixConcept Block>
+auto
+BlockDiagonalMatrix<Block>::cend(
+) -> BlockDiagonalMatrix<Block>::Iterator const&
+{
+    auto   indices = get_dims();
+    Value* value   = (*m_entries.end()).end().value;
+    return { indices, value, m_entries.size(), this };
 }

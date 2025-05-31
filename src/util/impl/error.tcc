@@ -16,7 +16,7 @@ template<typename T>
 ErrorOr<T>::ErrorOr(
     ErrorType error
 )
-  : m_value{ T{} }
+  : m_value{ ValueType{} }
   , m_error{ error }
   , m_is_error{ true }
 {
@@ -57,6 +57,7 @@ ErrorOr<T>::operator=(
     m_value = other.m_value;
     m_error = other.m_error;
     m_is_error = other.m_is_error;
+    return *this;
 }
 
 // .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
@@ -70,6 +71,7 @@ ErrorOr<T>::operator=(
     m_value = std::move(other.m_value);
     m_error = std::move(other.m_error);
     m_is_error = std::move(other.m_is_error);
+    return *this;
 }
 
 // .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
@@ -77,7 +79,7 @@ ErrorOr<T>::operator=(
 template<typename T>
 auto
 ErrorOr<T>::value(
-) -> T& 
+) -> typename ErrorOr<T>::ValueType& 
 {
     return m_value;
 }
@@ -87,7 +89,7 @@ ErrorOr<T>::value(
 template<typename T>
 auto
 ErrorOr<T>::value(
-) const -> T const& 
+) const -> typename ErrorOr<T>::ValueType const& 
 {
     return m_value;
 }

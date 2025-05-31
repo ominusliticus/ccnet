@@ -86,9 +86,12 @@ auto
 Matrix<Field>::operator()(
     Index i,
     Index j
-) -> Value&
+) -> ErrorOr<Value&>
 {
-    return m_entries[i * m_cols + j];
+    if ((i < m_rows) && (j < m_cols))
+        return m_entries[i * m_cols + j];
+    else 
+        return ErrorType::OUT_OF_BOUNDS;
 }
 
 // .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
@@ -98,9 +101,12 @@ auto
 Matrix<Field>::operator()(
     Index i,
     Index j
-) const -> Value const&
+) const -> ErrorOr<Value const&>
 {
-    return m_entries[i * m_cols + j];
+    if ((i < m_rows) && (j < m_cols))
+        return m_entries[i * m_cols + j];
+    else 
+        return ErrorType::OUT_OF_BOUNDS;
 }
 
 // .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
@@ -121,4 +127,54 @@ Matrix<Field>::get_dims(
 ) const -> std::pair<Index, Index> 
 {
     return std::make_pair(m_rows, m_cols);
+}
+
+// .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
+
+template<typename Field>
+auto
+Matrix<Field>::begin(
+) -> Matrix<Field>::Iterator
+{
+    auto   indices = std::make_pair<Index, Index>(static_cast<Index>(0), static_cast<Index>(0));
+    Value* ptr     = &m_entries[0];
+    return { indices, ptr, this };
+}
+
+// .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
+
+template<typename Field>
+auto
+Matrix<Field>::cbegin(
+) -> Matrix<Field>::Iterator const&
+{
+    auto   indices = std::make_pair<Index, Index>(static_cast<Index>(0), static_cast<Index>(0));
+    Value* ptr     = &m_entries[0];
+    return { indices, ptr, this };
+}
+
+// .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
+
+template<typename Field>
+auto
+Matrix<Field>::end(
+) -> Matrix<Field>::Iterator
+{
+    auto indices = std::make_pair<Index, Index>(static_cast<Index>(m_rows), 
+                                                static_cast<Index>(m_cols));
+    Value* ptr = &m_entries[m_entries.size() - 1];
+    return { indices, ptr, this };
+}
+
+// .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
+
+template<typename Field>
+auto
+Matrix<Field>::cend(
+) -> Matrix<Field>::Iterator const&
+{
+    auto indices = std::make_pair<Index, Index>(static_cast<Index>(m_rows), 
+                                                static_cast<Index>(m_cols));
+    Value* ptr = &m_entries[m_entries.size() - 1] + 1;
+    return { indices, ptr, this };
 }
