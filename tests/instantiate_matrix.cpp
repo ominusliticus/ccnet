@@ -10,6 +10,9 @@
 #include "matrix/dense_matrix.hpp"
 #include "matrix/sparse_matrix.hpp"
 
+// Utility
+#include "util/error.hpp"
+
 
 // TODO: Need to really build a testing library that will sit untop of the CTest library
 //       Largely, I want to build a project that has minimal third-party dependencies.
@@ -32,6 +35,7 @@ instantiate_matrix(
 
         Matrix<Field> m3 = std::move(m2);
         assert((m3.get_dims() == std::make_pair<Index, Index>(10, 10)));
+        assert((m3(11, 11).error() = ErrorType::OUT_OF_BOUNDS));
     }
 
     // sparse matrices
@@ -51,6 +55,7 @@ instantiate_matrix(
         Matrix<Field> dense_m = sparse_m3.to_dense();
         assert((dense_m.get_dims() == mat_dims) && 
                (dense_m(0, 1).value() == sparse_m3(0, 1).value()));
+        assert((sparse_m3(11, 11).error() = ErrorType::OUT_OF_BOUNDS));
     }
 
     // block matrices
@@ -71,6 +76,7 @@ instantiate_matrix(
         Matrix<Field> dense_m = block_m.to_dense();
         assert(dense_m.data() != nullptr);
         assert(dense_m(3, 3).value() == static_cast<Field>(1.0));
+        assert((dense_m(11, 11).error() = ErrorType::OUT_OF_BOUNDS));
     }
 }
 
