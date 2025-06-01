@@ -33,8 +33,8 @@ template<MatrixConcept Block>
 BlockDiagonalMatrix<Block>::BlockDiagonalMatrix(
     BlockDiagonalMatrix<Block>&& other
 ) noexcept
-  : m_entries{ std::move(other.m_entries) }
-  , m_dims_list{ std::move(other.m_dims_list) }
+  : m_dims_list{ std::move(other.m_dims_list) }
+  , m_entries{ std::move(other.m_entries) }
 {
 }
 
