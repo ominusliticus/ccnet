@@ -11,5 +11,5 @@
 #define CCNet_VERSION_MINOR "0"
 #endif
 
-#define CCNet_SRC_DIR "/home/ominusliticus/Documents/Research/Charles/ChalkerCoddingtonNet/src"
+#define CCNet_SRC_DIR "/home/ominusliticus/Documents/Research/Charles/ccnet/src"
 // #define CCNet_PYTHON_DIR $CCNet_PYTHON_DIR@

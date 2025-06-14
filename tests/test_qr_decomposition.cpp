@@ -1,5 +1,7 @@
+
 // STL
 #include <cassert>
+#include <complex>
 #include <cstdint>
 #include <utility>
 #include <vector>
@@ -8,13 +10,14 @@
 #include "matrix/dense_matrix.hpp"
 #include "matrix/factor.hpp"
 
-// SYCL Complex
-#include <sycl/stl_wrappers/complex>
+// SYCL Dependencies
+#if USE_SYCL
+  #include <sycl/sycl.hpp>
+#endif
 
 using Index     = std::size_t;
 using IndexList = std::vector<std::pair<Index, Index>>;
 using Field     = std::complex<double>;
-
 
 auto
 main(
@@ -30,6 +33,6 @@ main(
     }};
 
     
-    auto& [q, r] = TRY_MAIN(qr_factor(mat, matrix::FactorType::NONRECURSIVE));
+    auto [q, r] = TRY_MAIN(qr_factor(mat));
     return 0;
 }

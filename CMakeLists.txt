@@ -17,10 +17,11 @@ configure_file(
     @ONLY
 )
 
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
+# set(CMAKE_CXX_STANDARD 20)
+# set(CMAKE_CXX_STANDARD_REQUIRED True)
 add_compile_options(
     -Wall -Wpedantic -Wextra
+    -ferror-limit=3
     -std=c++20
     # -fconcepts-diagnostics-depth=3
     # -Wno-gnu-statement-expression
@@ -42,6 +43,7 @@ add_executable(
     ccnet 
     "${CCNet_SRC_DIR}/main.cpp"
 )
+
 target_include_directories(
     ccnet
     PUBLIC

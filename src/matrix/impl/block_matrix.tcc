@@ -74,7 +74,7 @@ BlockDiagonalMatrix<Block>::operator()(
     Index j
 ) -> ErrorOr<Value&>
 {
-    Index block_index;
+    Index block_index{};
     Index rows{ 0 };
     Index cols{ 0 };
     for (auto const&[subrows, subcols] : m_dims_list) 

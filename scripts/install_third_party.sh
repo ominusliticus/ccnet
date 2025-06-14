@@ -33,3 +33,27 @@ install_intelOneAPI () {
     wget https://registrationcenter-download.intel.com/akdlm/IRC_NAS/306e03be-1259-4d71-848a-59e23013c4f0/intel-fortran-essentials_2025.1.0.556_offline.sh
     sh ./intel-fortran-essentials_2025.1.0.556_offline.sh -a --silent --eula accept --install-dir $OPT
 }
+
+install_blaspp() {
+    git submodule update --init
+    source ~/intel/oneapi/setupvars.sh
+    mkdir third_party/installs
+    cd third_party/blaspp
+    mkdir build
+    cd build
+    cmake -DCMAKE_C_COMPILE=icx -DCMAKE_CXX_COMPILER=icpx -Dblas=MKL -Dgpu_backend=sycl -Dbuild_tests=no -DCMAKE_BUILD_TYPE=Release -DCMAKE_ISNTALL_PREFIX=../../installs ..
+    make -j20
+    make install
+}
+
+install_lapackpp() {
+    git submodule update --init
+    source ~/intel/oneapi/setupvars.sh
+    mkdir third_party/installs
+    cd third_party/lapackpp
+    mkdir build
+    cd build
+    cmake -DCMAKE_C_COMPILE=icx -DCMAKE_CXX_COMPILER=icpx -Dblas=MKL -Dblaspp_DIR=../../blaspp -Dbuild_tests=no -DCMAKE_BUILD_TYPE=Release -DCMAKE_ISNTALL_PREFIX=../../installs ..
+    make -j20
+    make install
+}

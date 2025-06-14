@@ -28,10 +28,10 @@ instantiate_matrix(
     // dense matrices
     {
         Matrix<Field> m(10, 10);
-        assert(m(3, 3) == static_cast<Field>(0.0));
+        assert(m(3, 3).value() == static_cast<Field>(0.0));
 
         Matrix<Field> m2(std::move(m));
-        assert(m2(4, 4) == static_cast<Field>(0.0));
+        assert(m2(4, 4).value() == static_cast<Field>(0.0));
 
         Matrix<Field> m3 = std::move(m2);
         assert((m3.get_dims() == std::make_pair<Index, Index>(10, 10)));
@@ -43,7 +43,7 @@ instantiate_matrix(
         IndexList           index_list{{0, 0}, {1, 1}};
         std::vector<Field>  entries{ static_cast<Field>(1.0), static_cast<Field>(-1.0) };
         SparseMatrix<Field> sparse_m(std::move(index_list), std::move(entries));
-        assert(sparse_m(0, 0).valu() == static_cast<Field>(1.0));
+        assert(sparse_m(0, 0).value() == static_cast<Field>(1.0));
 
         SparseMatrix<Field> sparse_m2(std::move(sparse_m));
         assert(sparse_m2(1, 1).value() == static_cast<Field>(-1.0));
@@ -90,10 +90,10 @@ instantiate_matrix(
     // dense matrices
     {
         Matrix<Field> m(std::move(v));
-        assert(m(0, 0) == static_cast<Field>(1.0));
+        assert(m(0, 0).value() == static_cast<Field>(1.0));
 
         Matrix<Field> m2(std::move(m));
-        assert(m2(1, 1) == static_cast<Field>(4.0));
+        assert(m2(1, 1).value() == static_cast<Field>(4.0));
 
         Matrix<Field> m3 = std::move(m2);
         assert((m3.get_dims() == std::make_pair<Index, Index>(2, 2)));
@@ -102,7 +102,7 @@ instantiate_matrix(
     // sparse matrices
     {
         SparseMatrix<Field> sparse_m(std::move(index_list), std::move(v));
-        assert(sparse_m(0, 0).valu() == static_cast<Field>(1.0));
+        assert(sparse_m(0, 0).value() == static_cast<Field>(1.0));
 
         SparseMatrix<Field> sparse_m2(std::move(sparse_m));
         assert(sparse_m2(1, 1).value() == static_cast<Field>(-1.0));

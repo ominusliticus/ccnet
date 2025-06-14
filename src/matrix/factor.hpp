@@ -1,5 +1,12 @@
 #pragma once
 
+// SYCL Dependencies
+#if USE_SYCL
+  #define __NO_STD_MATH
+  #define _SYCL_DISABLE_STL_HEADERS
+  #include <sycl/sycl.hpp>
+#endif
+
 #include "matrix_concept.hpp"
 #include "dense_matrix.hpp"
 
@@ -14,7 +21,7 @@ namespace matrix {
 enum class FactorType {
     RECURSIVE,
     NONRECURSIVE
-}
+};
 }
 
 using matrix::FactorType;
@@ -24,6 +31,7 @@ ErrorOr<std::pair<int, Matrix<typename MatrixType::Value>>> lu_factor(MatrixType
                                                                       FactorType type);
 
 template<MatrixConcept MatrixType>
-ErrorOr<Matrix<typename MatrixType::Value>> qr_factor(MatrixType const& mat, FactorType type);
+ErrorOr<std::pair<std::vector<typename MatrixType::Value>,
+                  Matrix<typename MatrixType::Value>>> qr_factor(MatrixType const& mat);
 
 #include "impl/factor.tcc"

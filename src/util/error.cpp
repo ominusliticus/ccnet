@@ -14,6 +14,7 @@ error_to_str(
         case ErrorType::INDEX_NOT_IN_LIST: return "Indices not found in index list";
         case ErrorType::INCOMPATIBLE_DIMENSIONS: return "Matrix dimensions mismatch";
         case ErrorType::SINGULAR_MATRIX: return "Matrix is singular";
+        case ErrorType::FACTORIZATION_FAILED: return "Factorization failed";
         default: return "unknown error";
     }
 }

@@ -10,7 +10,8 @@ enum class ErrorType : std::size_t {
     OUT_OF_BOUNDS,
     INDEX_NOT_IN_LIST,
     INCOMPATIBLE_DIMENSIONS,
-    SINGULAR_MATRIX
+    SINGULAR_MATRIX,
+    FACTORIZATION_FAILED
 };
 
 std::string error_to_str(ErrorType error);
