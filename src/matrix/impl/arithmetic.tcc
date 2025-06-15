@@ -13,11 +13,11 @@ operator+(
 
     using Index = typename MatrixType::Index;
 
-    auto &[rows, cols] = mat_1.get_dims();
+    auto [rows, cols] = mat_1.get_dims();
     MatrixType mat_3(mat_1);
     for (Index i{ 0 }; i < rows; ++i)
         for (Index j{ 0 }; j < cols; ++j)
-            mat_3(i, j) = mat_1(i, j) + mat_2(i, j); 
+            mat_3(i, j).value() = mat_1(i, j).value() + mat_2(i, j).value(); 
 }
 
 // .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
@@ -35,11 +35,11 @@ operator-(
 
     using Index = typename MatrixType::Index;
 
-    auto &[rows, cols] = mat_1.get_dims();
+    auto [rows, cols] = mat_1.get_dims();
     MatrixType mat_3(mat_1);
     for (Index i{ 0 }; i < rows; ++i)
         for (Index j{ 0 }; j < cols; ++j)
-            mat_3(i, j) = mat_1(i, j) - mat_2(i, j); 
+            mat_3(i, j).value() = mat_1(i, j).value() - mat_2(i, j).value(); 
 }
 
 // .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
@@ -53,11 +53,11 @@ operator-(
     using Index = typename MatrixType::Index;
     using Value = typename MatrixType::Value;
 
-    auto &[rows, cols] = mat_1.get_dims();
+    auto [rows, cols] = mat_1.get_dims();
     MatrixType mat_2(mat_1);
     for (Index i{ 0 }; i < rows; ++i)
         for (Index j{ 0 }; j < cols; ++j)
-            mat_2(i, j) = static_cast<Value>(-1.0) * mat_1(i, j); 
+            mat_2(i, j).value() = static_cast<Value>(-1.0) * mat_1(i, j).value(); 
 }
 
 // .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....

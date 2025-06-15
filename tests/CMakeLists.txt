@@ -10,6 +10,8 @@ target_include_directories(
     instantiate_matrix
     PUBLIC
     ${CCNet_SRC_DIR}
+    "${CCNet_SOURCE_DIR}/third_party/installs/include"
+    "$ENV{HOME}/intel/oneapi/2025.1/include"
 )
 add_test(
     NAME InstantiateMatrix
@@ -28,6 +30,8 @@ target_include_directories(
     block_matrix
     PUBLIC
     ${CCNet_SRC_DIR}
+    "${CCNet_SOURCE_DIR}/third_party/installs/include"
+    "$ENV{HOME}/intel/oneapi/2025.1/include"
 )
 add_test(
     NAME BlockMatrix

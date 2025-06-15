@@ -75,7 +75,7 @@ SparseMatrix<Field>::Iterator::operator==(
 ) -> bool
 {
     auto [i, j] = indices;
-    auto [oi, j] = other.indices;
+    auto [oi, oj] = other.indices;
     return (i == oi) && (j == oj) && (value == other.value);
 }
 

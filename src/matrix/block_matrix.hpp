@@ -33,6 +33,10 @@ public:
     // Access operations
     ErrorOr<Value&>       operator()(Index i, Index j);
     ErrorOr<Value const&> operator()(Index i, Index j) const;
+    bool                  operator==(BlockDiagonalMatrix const& other);
+
+    // Falliable comparison
+    ErrorOr<bool> eq(BlockDiagonalMatrix const& other);
 
     // Conversion to dense matrices
     Matrix<Value> to_dense();

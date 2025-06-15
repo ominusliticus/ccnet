@@ -31,7 +31,7 @@ ErrorOr<std::pair<int, Matrix<typename MatrixType::Value>>> lu_factor(MatrixType
                                                                       FactorType type);
 
 template<MatrixConcept MatrixType>
-ErrorOr<std::pair<std::vector<typename MatrixType::Value>,
-                  Matrix<typename MatrixType::Value>>> qr_factor(MatrixType const& mat);
+ErrorOr<std::pair<Matrix<typename MatrixType::Value>, Matrix<typename MatrixType::Value>>> 
+qr_factor(MatrixType const& mat);
 
 #include "impl/factor.tcc"

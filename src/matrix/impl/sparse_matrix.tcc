@@ -111,6 +111,39 @@ SparseMatrix<Field>::operator()(
 
 template<typename Field>
 auto
+SparseMatrix<Field>::operator==(
+    SparseMatrix<Field> const& other
+) -> bool
+{
+    bool is_same = true;
+    auto is_close = [](auto left, auto right) -> bool 
+    { 
+        return std::abs(left - right) < 1e-12; 
+    };
+    for (Index n{ 0 }; n < m_entries.size(); ++n)
+        is_same &= is_close(m_entries[n], other.m_entries[n]);
+    return is_same;
+}
+
+// .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
+
+template<typename Field>
+auto
+SparseMatrix<Field>::eq(
+    SparseMatrix<Field> const& other
+) -> ErrorOr<bool>
+{
+    auto const [orows, ocols] = other.get_dims();
+    auto const [mrows, mcols] = get_dims();
+    if (!((orows == mrows) && (ocols == mcols))) return ErrorType::INCOMPATIBLE_DIMENSIONS;
+
+    return this->operator==(other);
+}
+
+// .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
+
+template<typename Field>
+auto
 SparseMatrix<Field>::to_dense(
 ) -> Matrix<Field>
 {

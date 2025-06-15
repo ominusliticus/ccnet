@@ -22,6 +22,7 @@ public:
     Matrix() noexcept = default;
     Matrix(Index rows, Index cols);
     Matrix(Entries&& entries);
+    Matrix(Entries const& v, Entries const& u);  // Construct fron vector outer product
 
     // Copy and move operations
     Matrix(Matrix const& other);
@@ -33,6 +34,10 @@ public:
     // Access operations
     ErrorOr<Value&>       operator()(Index i, Index j);
     ErrorOr<Value const&> operator()(Index i, Index j) const;
+    bool                  operator==(Matrix const& other);
+
+    // Fallible comparison
+    ErrorOr<bool> eq(Matrix const& other);
 
     // Conversion to dense: for compatibility
     Matrix<Value>&       to_dense() { return *this; }
@@ -45,6 +50,8 @@ public:
     // Get access to underlying data
     Value*       data()       { return m_entries.data(); };
     Value const* data() const { return m_entries.data(); };
+
+    static Matrix<Value> Ident(Index dim);
 
     // Iterators for easy matrix traversal
     struct Iterator {

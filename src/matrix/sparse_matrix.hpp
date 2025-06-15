@@ -30,6 +30,10 @@ public:
     // Access operations
     ErrorOr<Value&>       operator()(Index i, Index j);
     ErrorOr<Value const&> operator()(Index i, Index j) const;
+    bool                  operator==(SparseMatrix const& other);
+
+    // Fallible comparison
+    ErrorOr<bool> eq(SparseMatrix const& other);
 
     // Conversion to dense matrices
     Matrix<Value> to_dense();
@@ -79,3 +83,4 @@ private:
 };
 
 #include "impl/sparse_matrix.tcc"
+#include "impl/sparse_matrix_iterator.tcc"

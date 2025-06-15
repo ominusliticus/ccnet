@@ -51,11 +51,36 @@ lu_factor(
 // .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
 
 template<MatrixConcept MatrixType>
+static auto
+construct_q_mat(
+    MatrixType const& r_mat,
+    std::vector<typename MatrixType::Value> const& reflections
+) -> ErrorOr<Matrix<typename MatrixType::Value>>
+{
+    using Value = typename MatrixType::Value;
+    using Index = typename MatrixType::Index;
+
+    Index k{ reflections.size() };
+    auto [rows, cols] = r_mat.get_dims();
+    std::vector<Value> v(rows);
+    Matrix<Value> q_mat = Matrix<Value>::Ident(rows);
+    Matrix<Value> id = Matrix<Value>::Ident(rows);
+    for (Index n{ k - 1 }; n >= 0; --n)
+    {
+        for (Index m{ 0 }; m < rows; ++m)
+             v[m] = m < n ? static_cast<Value>(0.0) 
+                          : (m == n ? static_cast<Value>(1.0) : TRY(r_mat(m, n)));
+
+        q_mat = TRY(TRY((id - Matrix<Value>(v, v))) * q_mat);
+    }
+    return q_mat;
+}
+
+template<MatrixConcept MatrixType>
 auto
 qr_factor(
     MatrixType const& mat
-) -> ErrorOr<std::pair<std::vector<typename MatrixType::Value>,
-                       Matrix<typename MatrixType::Value>>>
+) -> ErrorOr<std::pair<Matrix<typename MatrixType::Value>, Matrix<typename MatrixType::Value>>>
 {
     using Value = typename MatrixType::Value;
     using Index = typename MatrixType::Index;
@@ -75,6 +100,6 @@ qr_factor(
 
     if (result_code != 0) return ErrorType::FACTORIZATION_FAILED;
     
-    // Matrix<Value> q_mat = construct_q_mat(reflections);
-    return std::make_pair<std::vector<Value>, Matrix<Value>>(std::move(reflections), std::move(r_mat));
+    Matrix<Value> q_mat = TRY(construct_q_mat(r_mat, reflections));
+    return std::make_pair<Matrix<Value>, Matrix<Value>>(std::move(q_mat), std::move(r_mat));
 }

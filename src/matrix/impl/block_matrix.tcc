@@ -123,6 +123,35 @@ BlockDiagonalMatrix<Block>::operator()(
 
 template<MatrixConcept Block>
 auto
+BlockDiagonalMatrix<Block>::operator==(
+    BlockDiagonalMatrix<Block> const& other
+) -> bool
+{
+    bool is_same = true;
+    for (Index n{ 0 }; n < m_entries.size(); ++n)
+        is_same &= m_entries[n] == other.m_entries[n];
+    return is_same;
+}
+
+// .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
+
+template<MatrixConcept Block>
+auto
+BlockDiagonalMatrix<Block>::eq(
+    BlockDiagonalMatrix<Block> const& other
+) -> ErrorOr<bool>
+{
+    auto const [orows, ocols] = other.get_dims();
+    auto const [mrows, mcols] = get_dims();
+    if (!((orows == mrows) && (ocols == mcols))) return ErrorType::INCOMPATIBLE_DIMENSIONS;
+
+    return this->operator==(other);
+}
+
+// .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
+
+template<MatrixConcept Block>
+auto
 BlockDiagonalMatrix<Block>::to_dense(
 ) -> Matrix<Value>
 {
