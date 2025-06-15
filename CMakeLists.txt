@@ -17,8 +17,9 @@ configure_file(
     @ONLY
 )
 
-# set(CMAKE_CXX_STANDARD 20)
-# set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_CXX_EXTENSIONS FALSE)
 add_compile_options(
     -Wall -Wpedantic -Wextra
     -ferror-limit=3
