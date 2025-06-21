@@ -6,7 +6,8 @@
       auto&& error_or = result;                                                                   \
       if (error_or.is_error())                                                                    \
       {                                                                                           \
-          print("Bubbling error from function: %s\n", #result);                                   \
+          println("Bubbling error from expression: ", #result);                                   \
+          println("At", __FILE__, __LINE__, ":", __PRETTY_FUNCTION__);                            \
           return error_or.error();                                                                \
     }                                                                                             \
         error_or.value();                                                                         \
@@ -18,9 +19,9 @@
       auto&& error_or = result;                                                                   \
       if (error_or.is_error())                                                                    \
       {                                                                                           \
-          print("Exiting with error: %s\n", error_to_str(error_or.error()));                      \
-          print("Program failed at line %d\n", line);                                             \
-          return 0;                                                                               \
+          println("Exiting with error: ", error_to_str(error_or.error()));                        \
+          println("Program failed at line ", __FILE__, line);                                     \
+          return -999;                                                                            \
       }                                                                                           \
       error_or.value();                                                                           \
   })
