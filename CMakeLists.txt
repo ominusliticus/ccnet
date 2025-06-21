@@ -25,7 +25,7 @@ add_compile_options(
     -ferror-limit=3
     -std=c++20
     # -fconcepts-diagnostics-depth=3
-    # -Wno-gnu-statement-expression
+    -Wno-gnu-statement-expression
 )
 
 add_subdirectory(src)
