@@ -50,7 +50,6 @@ template<typename Field>
 auto
 SparseMatrix<Field>::operator=(
     SparseMatrix<Field> const& other
-
 ) -> SparseMatrix<Field>&
 {
     m_index_list = other.m_index_list;
@@ -111,18 +110,24 @@ SparseMatrix<Field>::operator()(
 
 template<typename Field>
 auto
-SparseMatrix<Field>::operator==(
-    SparseMatrix<Field> const& other
-) -> bool
+SparseMatrix<Field>::operator[](
+    std::pair<Index, Index>&& indices
+) -> Value&
 {
-    bool is_same = true;
-    auto is_close = [](auto left, auto right) -> bool 
-    { 
-        return std::abs(left - right) < 1e-12; 
-    };
-    for (Index n{ 0 }; n < m_entries.size(); ++n)
-        is_same &= is_close(m_entries[n], other.m_entries[n]);
-    return is_same;
+    auto it = std::ranges::find(m_index_list, indices);
+    return m_entries[static_cast<std::ptrdiff_t>(it - m_index_list.begin())];
+}
+
+// .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
+
+template<typename Field>
+auto
+SparseMatrix<Field>::operator[](
+    std::pair<Index, Index>&& indices
+) const -> Value const&
+{
+    auto it = std::ranges::find(m_index_list, indices);
+    return m_entries[static_cast<std::ptrdiff_t>(it - m_index_list.begin())];
 }
 
 // .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
@@ -130,14 +135,22 @@ SparseMatrix<Field>::operator==(
 template<typename Field>
 auto
 SparseMatrix<Field>::eq(
-    SparseMatrix<Field> const& other
+    SparseMatrix<Field> const& other,
+    double tol
 ) -> ErrorOr<bool>
 {
     auto const [orows, ocols] = other.get_dims();
     auto const [mrows, mcols] = get_dims();
     if (!((orows == mrows) && (ocols == mcols))) return ErrorType::INCOMPATIBLE_DIMENSIONS;
 
-    return this->operator==(other);
+    bool is_same = true;
+    auto is_close = [tol](auto left, auto right) -> bool 
+    { 
+        return std::abs(left - right) < tol; 
+    };
+    for (Index n{ 0 }; n < m_entries.size(); ++n)
+        is_same &= is_close(m_entries[n], other.m_entries[n]);
+    return is_same;
 }
 
 // .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
@@ -151,7 +164,9 @@ SparseMatrix<Field>::to_dense(
     Matrix<Field> mat(rows, cols);
     Index pos{ 0 };
     for (auto const& [i, j] : m_index_list)
-         mat(i, j) = m_entries[pos++];
+    {
+        mat[{i, j}] = m_entries[pos++];
+    }
 
     return mat;
 }
@@ -168,9 +183,9 @@ SparseMatrix<Field>::get_dims(
     for (auto const& indices : m_index_list)
     {
         rows = rows < std::get<0>(indices) ? std::get<0>(indices) : rows;
-        cols = cols < std::get<0>(indices) ? std::get<0>(indices) : cols;
+        cols = cols < std::get<1>(indices) ? std::get<1>(indices) : cols;
     }
-    return std::make_pair(rows, cols);
+    return std::make_pair(rows + 1, cols + 1);
 }
 
 // .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
@@ -185,9 +200,9 @@ SparseMatrix<Field>::get_dims(
     for (auto const& indices : m_index_list)
     {
         rows = rows < std::get<0>(indices) ? std::get<0>(indices) : rows;
-        cols = cols < std::get<0>(indices) ? std::get<0>(indices) : cols;
+        cols = cols < std::get<1>(indices) ? std::get<1>(indices) : cols;
     }
-    return std::make_pair(rows, cols);
+    return std::make_pair(rows + 1, cols + 1);
 }
 
 // .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
@@ -197,9 +212,7 @@ auto
 SparseMatrix<Field>::begin(
 ) -> SparseMatrix<Field>::Iterator
 {
-    auto   indices = m_index_list[0];
-    Value* ptr     = &m_entries[0];
-    return { indices, ptr, this };
+    return { m_index_list.begin(), m_entries.begin(), this };
 }
 
 // .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
@@ -209,9 +222,7 @@ auto
 SparseMatrix<Field>::cbegin(
 ) -> SparseMatrix<Field>::Iterator const&
 {
-    auto   indices = m_index_list[0];
-    Value* ptr     = &m_entries[0];
-    return { indices, ptr, this };
+    return { m_index_list.begin(), m_entries.begin(), this };
 }
 
 // .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
@@ -221,9 +232,7 @@ auto
 SparseMatrix<Field>::end(
 ) -> SparseMatrix<Field>::Iterator
 {
-    auto   indices = m_index_list[m_index_list.size() - 1];
-    Value* ptr     = &m_entries[m_entries.size() - 1] + 1;
-    return { indices, ptr, this };
+    return { m_index_list.end(), m_entries.end(), this };
 }
 
 // .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
@@ -233,7 +242,5 @@ auto
 SparseMatrix<Field>::cend(
 ) -> SparseMatrix<Field>::Iterator const&
 {
-    auto   indices = m_index_list[m_index_list.size() - 1];
-    Value* ptr     = &m_entries[m_entries.size() - 1] + 1;
-    return { indices, ptr, this };
+    return { m_index_list.end(), m_entries.end(), this };
 }

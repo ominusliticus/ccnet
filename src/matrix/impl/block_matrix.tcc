@@ -10,11 +10,13 @@ BlockDiagonalMatrix<Block>::BlockDiagonalMatrix(
   , m_entries{ std::move(entries) }
 {
     m_dims_list = [](Entries const& entries) -> DimsList {
-        DimsList dims_list(entries.size());
+        DimsList dims_list;
         for (Block const& mat : entries)
              dims_list.push_back(mat.get_dims());
         return dims_list;
     }(m_entries);
+    println(m_dims_list.size());
+    println(m_entries.size());
 }
 
 // .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
@@ -74,7 +76,7 @@ BlockDiagonalMatrix<Block>::operator()(
     Index j
 ) -> ErrorOr<Value&>
 {
-    Index block_index{};
+    Index block_index{ 0 };
     Index rows{ 0 };
     Index cols{ 0 };
     for (auto const&[subrows, subcols] : m_dims_list) 
@@ -101,7 +103,7 @@ BlockDiagonalMatrix<Block>::operator()(
     Index j
 ) const -> ErrorOr<Value const&>
 {
-    Index block_index;
+    Index block_index{ 0 };
     Index rows{ 0 };
     Index cols{ 0 };
     for (auto const&[subrows, subcols] : m_dims_list) 
@@ -123,14 +125,44 @@ BlockDiagonalMatrix<Block>::operator()(
 
 template<MatrixConcept Block>
 auto
-BlockDiagonalMatrix<Block>::operator==(
-    BlockDiagonalMatrix<Block> const& other
-) -> bool
+BlockDiagonalMatrix<Block>::operator[](
+    std::pair<Index, Index>&& indices
+) -> Value&
 {
-    bool is_same = true;
-    for (Index n{ 0 }; n < m_entries.size(); ++n)
-        is_same &= m_entries[n] == other.m_entries[n];
-    return is_same;
+    Index block_index{};
+    Index rows{ 0 };
+    Index cols{ 0 };
+    auto [i, j] = indices;
+    for (auto const&[subrows, subcols] : m_dims_list) 
+    {
+        rows += subrows;
+        cols += subcols;
+        if (i <= rows && j <= cols)
+            return m_entries[block_index](i - rows + subrows, j - cols + subcols);
+        ++block_index;
+    }
+}
+
+// .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
+
+template<MatrixConcept Block>
+auto
+BlockDiagonalMatrix<Block>::operator[](
+    std::pair<Index, Index>&& indices
+) const -> Value const&
+{
+    Index block_index{};
+    Index rows{ 0 };
+    Index cols{ 0 };
+    auto [i, j] = indices;
+    for (auto const&[subrows, subcols] : m_dims_list) 
+    {
+        rows += subrows;
+        cols += subcols;
+        if (i <= rows && j <= cols)
+            return m_entries[block_index](i - rows + subrows, j - cols + subcols);
+        ++block_index;
+    }
 }
 
 // .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
@@ -138,14 +170,18 @@ BlockDiagonalMatrix<Block>::operator==(
 template<MatrixConcept Block>
 auto
 BlockDiagonalMatrix<Block>::eq(
-    BlockDiagonalMatrix<Block> const& other
+    BlockDiagonalMatrix<Block> const& other,
+    double tol
 ) -> ErrorOr<bool>
 {
     auto const [orows, ocols] = other.get_dims();
     auto const [mrows, mcols] = get_dims();
     if (!((orows == mrows) && (ocols == mcols))) return ErrorType::INCOMPATIBLE_DIMENSIONS;
 
-    return this->operator==(other);
+    bool is_same = true;
+    for (Index n{ 0 }; n < m_entries.size(); ++n)
+        is_same &= TRY(m_entries[n].eq(other.m_entries[n], tol));
+    return is_same;
 }
 
 // .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
@@ -162,16 +198,19 @@ BlockDiagonalMatrix<Block>::to_dense(
         rows += subrows;
         cols += subcols;
     }
+    println(rows, cols);
     Matrix<Value> mat(rows, cols);
     rows = cols = 0;
     for (auto& block : m_entries)
     {
-        auto const& [subrows, subcols] = block.get_dims();
+        println(block);
         for (auto const& itr : block)
         {
-            auto const& [i, j] = itr.indices;
-            mat(rows + i, cols + j) = *itr.value;
+            auto const& [i, j] = *itr.indices;
+            println(i, j, *itr.value);
+            mat[{rows + i, cols + j}]= *itr.value;
         }
+        auto const& [subrows, subcols] = block.get_dims();
         rows += subrows;
         cols += subcols;
     }

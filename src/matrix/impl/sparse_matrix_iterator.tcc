@@ -5,9 +5,9 @@
 
 template<typename Field>
 SparseMatrix<Field>::Iterator::Iterator(
-    std::pair<Index, Index>& indices_,
-    Value*                   value_,
-    SparseMatrix<Field>*     underlying_mat
+    IndexList::iterator        indices_,
+    typename Entries::iterator value_,
+    SparseMatrix<Field>*       underlying_mat
 )
   : indices{ indices_ }
   , value{ value_ }
@@ -21,7 +21,7 @@ auto
 SparseMatrix<Field>::Iterator::operator++(
 ) -> SparseMatrix<Field>::Iterator&
 {
-    indices = *(&indices + 1);
+    ++indices;
     ++value;
     return *this;
 }
@@ -33,7 +33,7 @@ auto
 SparseMatrix<Field>::Iterator::operator--(
 ) -> SparseMatrix<Field>::Iterator& 
 {
-    indices = *(&indices - 1);
+    --indices;
     --value;
     return *this;
 }
@@ -47,7 +47,7 @@ SparseMatrix<Field>::Iterator::operator++(
 ) -> SparseMatrix<Field>::Iterator
 {
     auto old = *this;
-    indices = *(&indices + 1);
+    ++indices;
     ++value;
     return old;
 }
@@ -61,7 +61,7 @@ SparseMatrix<Field>::Iterator::operator--(
 ) -> SparseMatrix<Field>::Iterator 
 {
     auto old = *this;
-    indices = *(&indices - 1);
+    --indices;
     --value;
     return old;
 }
@@ -74,8 +74,8 @@ SparseMatrix<Field>::Iterator::operator==(
     Iterator const& other
 ) -> bool
 {
-    auto [i, j] = indices;
-    auto [oi, oj] = other.indices;
+    auto [i, j] = *indices;
+    auto [oi, oj] = *other.indices;
     return (i == oi) && (j == oj) && (value == other.value);
 }
 

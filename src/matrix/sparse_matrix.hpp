@@ -30,10 +30,11 @@ public:
     // Access operations
     ErrorOr<Value&>       operator()(Index i, Index j);
     ErrorOr<Value const&> operator()(Index i, Index j) const;
-    bool                  operator==(SparseMatrix const& other);
+    Value&                operator[](std::pair<Index, Index>&& indices);
+    Value const&          operator[](std::pair<Index, Index>&& indices) const;
 
     // Fallible comparison
-    ErrorOr<bool> eq(SparseMatrix const& other);
+    ErrorOr<bool> eq(SparseMatrix const& other, double tol);
 
     // Conversion to dense matrices
     Matrix<Value> to_dense();
@@ -46,9 +47,9 @@ public:
     struct Iterator {
         Iterator() noexcept = default;
         Iterator(
-            std::pair<Index, Index>& indices_,
-            Value* value_, 
-            SparseMatrix<Field>* underlying_mat
+            IndexList::iterator        indices_,
+            typename Entries::iterator value_, 
+            SparseMatrix<Field>*       underlying_mat
         );
 
         // Iterator incrementor
@@ -65,8 +66,8 @@ public:
         Iterator&       operator*() { return *this; }
         Iterator const& operator*() const { return *this; }
 
-        std::pair<Index, Index>& indices;
-        Value*                   value;
+        IndexList::iterator        indices;
+        typename Entries::iterator value;
 
     private:
         SparseMatrix<Field>* underlying_matrix;

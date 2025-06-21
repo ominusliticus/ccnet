@@ -33,10 +33,11 @@ public:
     // Access operations
     ErrorOr<Value&>       operator()(Index i, Index j);
     ErrorOr<Value const&> operator()(Index i, Index j) const;
-    bool                  operator==(BlockDiagonalMatrix const& other);
+    Value&                operator[](std::pair<Index, Index>&& indices);
+    Value const&          operator[](std::pair<Index, Index>&& indices) const;
 
     // Falliable comparison
-    ErrorOr<bool> eq(BlockDiagonalMatrix const& other);
+    ErrorOr<bool> eq(BlockDiagonalMatrix const& other, double tol);
 
     // Conversion to dense matrices
     Matrix<Value> to_dense();
@@ -49,9 +50,9 @@ public:
     struct Iterator {
         Iterator() noexcept = default;
         Iterator(
-            typename Block::Iterator const&   current_block_itr_,
-            Index                       current_block_index_,
-            BlockDiagonalMatrix<Block>* underlying_mat
+            typename Block::Iterator const& current_block_itr_,
+            Index                           current_block_index_,
+            BlockDiagonalMatrix<Block>*     underlying_mat
         );
 
         // Iterator incrementor
@@ -80,7 +81,7 @@ public:
     Iterator const& cbegin();
     Iterator        end();
     Iterator const& cend();
-private:
+public:
     DimsList m_dims_list;
     Entries  m_entries;
 };

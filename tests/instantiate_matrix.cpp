@@ -49,7 +49,7 @@ instantiate_matrix(
         assert(sparse_m2(1, 1).value() == static_cast<Field>(-1.0));
 
         SparseMatrix<Field>   sparse_m3 = std::move(sparse_m2);
-        [[maybe_unused]] auto mat_dims  = std::make_pair<Index, Index>(2, 2);
+        auto                  mat_dims  = std::make_pair<Index, Index>(2, 2);
         assert((sparse_m3.get_dims() == mat_dims));
 
         Matrix<Field> dense_m = sparse_m3.to_dense();
@@ -61,7 +61,7 @@ instantiate_matrix(
     // block matrices
     {
         IndexList           index_list{{0, 0}, {1, 1}, {2, 2}, {3, 3}};
-        std::vector<Field>  entries{ 4, static_cast<Field>(1.0) };
+        std::vector<Field>  entries(4, static_cast<Field>(1.0));
         SparseMatrix<Field> sparse_m{ std::move(index_list), std::move(entries) };
         
         BlockDiagonalMatrix<SparseMatrix<Field>> block_m({sparse_m});
@@ -73,7 +73,9 @@ instantiate_matrix(
         BlockDiagonalMatrix<SparseMatrix<Field>> block_m3 = std::move(block_m2);
         assert((block_m3.get_dims() == std::make_pair<Index, Index>(4, 4)));
 
-        Matrix<Field> dense_m = block_m.to_dense();
+        Matrix<Field> dense_m = block_m3.to_dense();
+        auto [i, j] = dense_m.get_dims();
+        println(i, j);
         assert(dense_m.data() != nullptr);
         assert(dense_m(3, 3).value() == static_cast<Field>(1.0));
         assert((dense_m(11, 11).error() = ErrorType::OUT_OF_BOUNDS));
@@ -87,9 +89,11 @@ instantiate_matrix(
     IndexList&&          index_list
 ) -> void
 {
+    auto v1 = v;
+    auto v2 = v;
     // dense matrices
     {
-        Matrix<Field> m(std::move(v));
+        Matrix<Field> m(std::move(v1));
         assert(m(0, 0).value() == static_cast<Field>(1.0));
 
         Matrix<Field> m2(std::move(m));
@@ -101,11 +105,11 @@ instantiate_matrix(
 
     // sparse matrices
     {
-        SparseMatrix<Field> sparse_m(std::move(index_list), std::move(v));
+        SparseMatrix<Field> sparse_m(std::move(index_list), std::move(v2));
         assert(sparse_m(0, 0).value() == static_cast<Field>(1.0));
 
         SparseMatrix<Field> sparse_m2(std::move(sparse_m));
-        assert(sparse_m2(1, 1).value() == static_cast<Field>(-1.0));
+        assert(sparse_m2(1, 1).value() == static_cast<Field>(4.0));
 
         SparseMatrix<Field>   sparse_m3 = std::move(sparse_m2);
         [[maybe_unused]] auto mat_dims  = std::make_pair<Index, Index>(2, 2);
