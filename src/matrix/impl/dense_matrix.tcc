@@ -1,6 +1,7 @@
 #include <utility>
 #include <cmath>
 
+// ccnet matrix
 #include "matrix/arithmetic.hpp"
 
 
@@ -30,16 +31,36 @@ Matrix<Field>::Matrix(
 
 template<typename Field>
 Matrix<Field>::Matrix(
+    Index rows,
+    Index cols,
+    Entries&& entries
+) : m_entries{ std::move(entries) }
+  , m_rows{ rows }
+  , m_cols{ cols }
+{
+}
+
+// .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
+
+template<typename Field>
+Matrix<Field>::Matrix(
     Entries const& u,
     Entries const& v
 ) 
-{
-    Index n{ static_cast<Index>(std::sqrt(m_entries.size())) };
-    for (Index i{ 0 }; i < n; ++n)
-        for (Index j{ 0 }; j < n; ++j)
-            m_entries[i * m_cols + j] = u[i] * std::conj(v[j]);
-    m_rows = n;
-    m_cols = n;
+{   
+    // If we are dealing with non-complex type, then we have to cast.
+    // Currently, standard still distinguish complex floating numbers from others
+    m_rows = u.size();
+    m_cols = v.size();
+    m_entries.reserve(m_rows * m_cols);
+    for (Index i{ 0 }; i < m_rows; ++i)
+        for (Index j{ 0 }; j < m_cols; ++j)
+        {
+            if constexpr (std::is_floating_point_v<Field>)
+                m_entries[i + j * m_rows] = u[i] * v[j]; 
+            else
+                m_entries[i + j * m_rows] = u[i] * std::conj(v[j]);
+        }
 }
 
 // .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
@@ -104,7 +125,7 @@ Matrix<Field>::operator()(
 ) -> ErrorOr<Value&>
 {
     if ((i < m_rows) && (j < m_cols))
-        return m_entries[i * m_cols + j];
+        return m_entries[i + j * m_rows];
     else 
         return ErrorType::OUT_OF_BOUNDS;
 }
@@ -119,7 +140,7 @@ Matrix<Field>::operator()(
 ) const -> ErrorOr<Value const&>
 {
     if ((i < m_rows) && (j < m_cols))
-        return m_entries[i * m_cols + j];
+        return m_entries[i + j * m_rows];
     else 
         return ErrorType::OUT_OF_BOUNDS;
 }
@@ -128,14 +149,43 @@ Matrix<Field>::operator()(
 
 template<typename Field>
 auto
-Matrix<Field>::operator==(
-    Matrix<Field> const& other
-) -> bool
+Matrix<Field>::operator[](
+    std::pair<Index, Index>&& indices
+) -> Value&
 {
+    auto [i, j] = indices;
+    return m_entries[i + j * m_rows];
+}
+
+// .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
+
+template<typename Field>
+auto
+Matrix<Field>::operator[](
+    std::pair<Index, Index>&& indices
+) const -> Value const&
+{
+    auto [i, j] = indices;
+    return m_entries[i + j * m_rows];
+}
+
+// .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
+
+template<typename Field>
+auto
+Matrix<Field>::eq(
+    Matrix<Field> const& other,
+    double tol
+) -> ErrorOr<bool>
+{
+    auto const [orows, ocols] = other.get_dims();
+    auto const [mrows, mcols] = get_dims();
+    if (!((orows == mrows) && (ocols == mcols))) return ErrorType::INCOMPATIBLE_DIMENSIONS;
+
     bool is_same = true;
-    auto is_close = [](auto left, auto right) -> bool 
+    auto is_close = [tol](auto left, auto right) -> bool 
     { 
-        return std::abs(left - right) < 1e-12; 
+        return std::abs(left - right) < tol; 
     };
     for (Index n{ 0 }; n < m_entries.size(); ++n)
         is_same &= is_close(m_entries[n], other.m_entries[n]);
@@ -146,15 +196,24 @@ Matrix<Field>::operator==(
 
 template<typename Field>
 auto
-Matrix<Field>::eq(
-    Matrix<Field> const& other
-) -> ErrorOr<bool>
+Matrix<Field>::clone(
+) -> Matrix<Field>
 {
-    auto const [orows, ocols] = other.get_dims();
-    auto const [mrows, mcols] = get_dims();
-    if (!((orows == mrows) && (ocols == mcols))) return ErrorType::INCOMPATIBLE_DIMENSIONS;
+    Matrix<Field> mat(m_rows, m_cols);
+    mat.m_entries = m_entries;
+    return mat;
+}
 
-    return this->operator==(other);
+// .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
+
+template<typename Field>
+auto
+Matrix<Field>::clone(
+) const -> Matrix<Field>
+{
+    Matrix<Field> mat(m_rows, m_cols);
+    mat.m_entries = m_entries;
+    return mat;
 }
 
 // .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
@@ -187,7 +246,28 @@ Matrix<Field>::Ident(
 {
     Matrix<Value> mat(dim, dim);
     for (Index n{ 0 }; n < dim; ++n)
-        mat(n, n).value() = static_cast<Value>(1.0);
+        mat[{n, n}] = static_cast<Value>(1.0);
+    return mat;
+}
+
+// .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
+
+template<typename Field>
+auto
+Matrix<Field>::from_col_major(
+    Index rows,
+    Index cols,
+    Entries&& entries
+) -> Matrix<Field>
+{
+    Matrix<Field> mat(rows, cols);
+    for (Index n{ 0 }; n < entries.size(); ++n)
+    {
+        Index l = n % cols;
+        Index k = (n - l) / cols;
+        Index i = l * rows + k;
+        mat.m_entries[i] = entries[n];
+    }
     return mat;
 }
 
@@ -240,3 +320,5 @@ Matrix<Field>::cend(
     Value* ptr = &m_entries[m_entries.size() - 1] + 1;
     return { indices, ptr, this };
 }
+
+// .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....

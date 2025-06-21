@@ -7,6 +7,7 @@
 // STL
 #include <cstdint>
 #include <memory>
+#include <tuple>
 #include <vector>
 #include <utility>
 
@@ -22,6 +23,7 @@ public:
     Matrix() noexcept = default;
     Matrix(Index rows, Index cols);
     Matrix(Entries&& entries);
+    Matrix(Index rows, Index cols, Entries&& entries);
     Matrix(Entries const& v, Entries const& u);  // Construct fron vector outer product
 
     // Copy and move operations
@@ -34,14 +36,19 @@ public:
     // Access operations
     ErrorOr<Value&>       operator()(Index i, Index j);
     ErrorOr<Value const&> operator()(Index i, Index j) const;
-    bool                  operator==(Matrix const& other);
+    Value&                operator[](std::pair<Index, Index>&& indices);
+    Value const&          operator[](std::pair<Index, Index>&& indices) const;
 
     // Fallible comparison
-    ErrorOr<bool> eq(Matrix const& other);
+    ErrorOr<bool> eq(Matrix const& other, double tol);
 
     // Conversion to dense: for compatibility
     Matrix<Value>&       to_dense() { return *this; }
     Matrix<Value> const& to_dense() const {return *this; }
+
+    // Provide deep copy
+    Matrix<Value> clone();
+    Matrix<Value> clone() const;
     
     // Return matrix dims
     std::pair<Index, Index> get_dims();
@@ -52,6 +59,7 @@ public:
     Value const* data() const { return m_entries.data(); };
 
     static Matrix<Value> Ident(Index dim);
+    static Matrix<Value> from_col_major(Index rows, Index cols, Entries&& entries);
 
     // Iterators for easy matrix traversal
     struct Iterator {
@@ -84,6 +92,7 @@ public:
     Iterator const& cbegin();
     Iterator        end();
     Iterator const& cend();
+
 
 private:
     Entries m_entries;

@@ -1,4 +1,7 @@
 #include <blas.hh>
+#include <lapack/util.hh>
+
+#include "print.hpp"
 
 template<MatrixConcept MatrixType>
 auto
@@ -17,7 +20,8 @@ operator+(
     MatrixType mat_3(mat_1);
     for (Index i{ 0 }; i < rows; ++i)
         for (Index j{ 0 }; j < cols; ++j)
-            mat_3(i, j).value() = mat_1(i, j).value() + mat_2(i, j).value(); 
+            mat_3[{i, j}] = mat_1[{i, j}] + mat_2[{i, j}]; 
+    return mat_3;
 }
 
 // .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
@@ -30,7 +34,7 @@ operator-(
 ) -> ErrorOr<MatrixType>
 {
     // Early termination
-    if (!(mat_1.get_dims() == mat_2.get_dims()))
+    if (!(mat_1.get_dims() == mat_2.get_dims())) 
         return ErrorType::INCOMPATIBLE_DIMENSIONS;
 
     using Index = typename MatrixType::Index;
@@ -39,7 +43,8 @@ operator-(
     MatrixType mat_3(mat_1);
     for (Index i{ 0 }; i < rows; ++i)
         for (Index j{ 0 }; j < cols; ++j)
-            mat_3(i, j).value() = mat_1(i, j).value() - mat_2(i, j).value(); 
+            mat_3[{i, j}] = mat_1[{i, j}] - mat_2[{i, j}]; 
+    return mat_3;
 }
 
 // .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
@@ -57,7 +62,8 @@ operator-(
     MatrixType mat_2(mat_1);
     for (Index i{ 0 }; i < rows; ++i)
         for (Index j{ 0 }; j < cols; ++j)
-            mat_2(i, j).value() = static_cast<Value>(-1.0) * mat_1(i, j).value(); 
+            mat_2[{i, j}] = static_cast<Value>(-1.0) * mat_1[{i, j}]; 
+    return mat_2;
 }
 
 // .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
@@ -80,7 +86,7 @@ operator*(
     Index k{ k_1 };
     Matrix<Value> mat_3(rows, cols);
     blas::gemm(                                 // calculates alpha * A * B + beta * C
-        blas::Layout::RowMajor,                 // blas::Layout -> memory layout
+        blas::Layout::ColMajor,                 // blas::Layout -> memory layout
         blas::Op::NoTrans,                      // blas::Op     -> Transpose A before multiple
         blas::Op::NoTrans,                      // blas::Op     -> Transpose B before mulitple
         rows,                                   // number of rows in A
@@ -88,13 +94,31 @@ operator*(
         k,                                      // number of columns in A or rows in B
         static_cast<Value>(1.0),                // alpha
         mat_1.to_dense().data(),                // A
-        std::max(static_cast<Index>(1), k),     // stride size of A
+        std::max(static_cast<Index>(1), rows),  // stride size of A
         mat_2.to_dense().data(),                // B
-        std::max(static_cast<Index>(1), cols),  // stride size of B
+        std::max(static_cast<Index>(1), k),     // stride size of B
         static_cast<Value>(0.0),                // beta
         mat_3.data(),                           // C
-        std::max(static_cast<Index>(1), cols)   // stride size of C
+        std::max(static_cast<Index>(1), rows)   // stride size of C
     );
     return mat_3;
 }
 
+// .....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....ooo0ooo.....
+
+template<MatrixConcept MatrixType>
+auto
+operator*(
+    typename MatrixType::Value scalar,
+    MatrixType const& mat_in
+) -> MatrixType
+{
+    using Index = typename MatrixType::Index;
+
+    auto [rows, cols] = mat_in.get_dims();
+    MatrixType mat_out(rows, cols);
+    for (Index i{ 0 }; i < rows; ++i)
+        for (Index j{ 0 }; j < cols; ++j)
+            mat_out[{i, j}] = scalar * mat_in[{i, j}];
+    return mat_out;
+}

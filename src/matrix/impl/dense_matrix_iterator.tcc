@@ -29,7 +29,8 @@ Matrix<Field>::Iterator::operator++(
     }
     Index i_ = i < underlying_matrix->m_rows ? i : underlying_matrix->m_rows - 1;
     Index j_ = j < underlying_matrix->m_cols ? j : underlying_matrix->m_cols - 1;
-    value = &underlying_matrix->m_entries[i_ * underlying_matrix->m_cols + j_];
+    indices = std::make_pair(i, j);
+    value = &underlying_matrix->m_entries[i_ + j_ * underlying_matrix->m_rows];
     return *this;
 }
 
@@ -48,7 +49,8 @@ Matrix<Field>::Iterator::operator--(
     }
     Index i_ = i > 0 ? i : 0;
     Index j_ = j > 0 ? j : 0;
-    value = &underlying_matrix->m_entries[i_ * underlying_matrix->m_cols + j_];
+    indices = std::make_pair(i, j);
+    value = &underlying_matrix->m_entries[i_ + j_ * underlying_matrix->m_rows];
     return *this;
 }
 
@@ -69,7 +71,8 @@ Matrix<Field>::Iterator::operator++(
     }
     Index i_ = i < underlying_matrix->m_rows ? i : underlying_matrix->m_rows - 1;
     Index j_ = j < underlying_matrix->m_cols ? j : underlying_matrix->m_cols - 1;
-    value = &underlying_matrix->m_entries[i_ * underlying_matrix->m_cols + j_];
+    indices = std::make_pair(i, j);
+    value = &underlying_matrix->m_entries[i_ + j_ * underlying_matrix->m_rows];
     return old;
 }
 
@@ -90,7 +93,8 @@ Matrix<Field>::Iterator::operator--(
     }
     Index i_ = i > 0 ? i : 0;
     Index j_ = j > 0 ? j : 0;
-    value = &underlying_matrix->m_entries[i_ * underlying_matrix->m_cols + j_];
+    indices = std::make_pair(i, j);
+    value = &underlying_matrix->m_entries[i_ + j_ * underlying_matrix->m_rows];
     return old;
 }
 
